@@ -30,7 +30,7 @@ export class SqlService {
   private http: HttpClient = inject(HttpClient);
   
   // URL to the PHP backend script
-  private readonly API_URL = '/api.php'; 
+  private readonly API_URL = '/api/api.php'; 
   
   // Direct paths to the Flat Files (Read-Only access for Frontend)
   private readonly FILE_PATHS = {

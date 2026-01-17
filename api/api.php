@@ -8,7 +8,7 @@ header("Content-Type: application/json");
 
 // Define the storage directory: root/material/
 // __DIR__ is src/server, so we go up two levels to reach the project root.
-$materialDir = __DIR__ . '/../../material';
+$materialDir = __DIR__ . '/../material';
 
 // Ensure the material directory exists
 if (!is_dir($materialDir)) {
