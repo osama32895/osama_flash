@@ -1,0 +1,72 @@
+
+<div class="flex flex-col min-h-screen">
+  
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-between items-center h-16">
+        
+        <!-- Logo -->
+        <a routerLink="/" class="flex items-center gap-2 group">
+          <div class="text-2xl font-bold tracking-tighter text-white group-hover:text-osama-green transition-colors neon-text-green">
+            OSAMA<span class="text-osama-green group-hover:text-white transition-colors">FLASH</span>
+          </div>
+        </a>
+
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex items-center gap-1">
+          <a routerLink="/" 
+             routerLinkActive="text-osama-green bg-white/5" 
+             [routerLinkActiveOptions]="{exact: true}"
+             class="px-4 py-2 rounded hover:text-osama-green hover:bg-white/5 transition-all font-medium text-sm">
+            <i class="fas fa-home mr-1"></i> HOME
+          </a>
+          <a routerLink="/About" 
+             routerLinkActive="text-osama-green bg-white/5"
+             class="px-4 py-2 rounded hover:text-osama-green hover:bg-white/5 transition-all font-medium text-sm">
+            <i class="fas fa-info-circle mr-1"></i> ABOUT
+          </a>
+          <a routerLink="/Admin" 
+             routerLinkActive="text-osama-green bg-white/5"
+             class="px-4 py-2 rounded hover:text-osama-green hover:bg-white/5 transition-all font-medium text-sm">
+            <i class="fas fa-lock mr-1"></i> ADMIN
+          </a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button (click)="toggleMenu()" class="md:hidden text-white hover:text-osama-green transition-colors">
+          <i class="fas fa-bars text-2xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Nav -->
+    @if (isMenuOpen) {
+      <div class="md:hidden border-t border-white/10 bg-osama-dark">
+        <a routerLink="/" (click)="isMenuOpen=false" class="block px-4 py-3 border-b border-white/5 hover:bg-white/5 text-gray-300">HOME</a>
+        <a routerLink="/About" (click)="isMenuOpen=false" class="block px-4 py-3 border-b border-white/5 hover:bg-white/5 text-gray-300">ABOUT</a>
+        <a routerLink="/Admin" (click)="isMenuOpen=false" class="block px-4 py-3 hover:bg-white/5 text-gray-300">ADMIN</a>
+      </div>
+    }
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-grow">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 bg-black py-8 mt-12">
+    <div class="container mx-auto px-4 text-center">
+      <div class="mb-4 flex justify-center gap-4">
+        <a href="#" class="text-gray-500 hover:text-osama-green transition-colors"><i class="fab fa-facebook fa-lg"></i></a>
+        <a href="#" class="text-gray-500 hover:text-osama-blue transition-colors"><i class="fab fa-twitter fa-lg"></i></a>
+        <a href="#" class="text-gray-500 hover:text-purple-500 transition-colors"><i class="fab fa-discord fa-lg"></i></a>
+      </div>
+      <p class="text-gray-600 text-sm">
+        &copy; 2006 - 2024 Osama Flash System. Local XAMPP Edition.
+      </p>
+    </div>
+  </footer>
+
+</div>

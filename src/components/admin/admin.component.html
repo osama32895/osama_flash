@@ -1,0 +1,296 @@
+
+<div class="min-h-[calc(100vh-80px)] flex justify-center items-center p-4">
+  
+  @if (!auth.isAdmin()) {
+    <!-- Login Screen -->
+    <div class="glass-panel p-8 rounded-2xl w-full max-w-md shadow-2xl border-t-4 border-osama-green">
+      <div class="text-center mb-6">
+        <i class="fas fa-user-shield text-5xl text-osama-green mb-4"></i>
+        <h2 class="text-2xl font-bold text-white">Admin Access</h2>
+        <p class="text-gray-400 text-sm">Server-Side Authentication</p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-gray-400 text-sm mb-1">Username</label>
+          <input [(ngModel)]="username" type="text" class="w-full bg-black/50 border border-white/20 rounded p-3 text-white focus:border-osama-green outline-none">
+        </div>
+        <div>
+          <label class="block text-gray-400 text-sm mb-1">Password</label>
+          <input [(ngModel)]="password" type="password" class="w-full bg-black/50 border border-white/20 rounded p-3 text-white focus:border-osama-green outline-none">
+        </div>
+        
+        @if (loginError) {
+          <div class="text-red-500 text-sm bg-red-500/10 p-2 rounded text-center">
+            {{ loginError }}
+          </div>
+        }
+
+        <button (click)="attemptLogin()" class="w-full bg-osama-green hover:bg-green-400 text-black font-bold py-3 rounded transition-all shadow-[0_0_15px_rgba(0,255,65,0.3)]">
+          LOGIN
+        </button>
+      </div>
+    </div>
+  } @else {
+    <!-- Admin Dashboard -->
+    <div class="w-full max-w-6xl">
+      <div class="flex flex-col md:flex-row gap-6">
+        
+        <!-- Sidebar -->
+        <div class="md:w-64 glass-panel rounded-xl p-4 h-fit">
+          <div class="flex items-center gap-3 mb-8 px-2">
+            <div class="w-10 h-10 rounded-full bg-osama-green flex items-center justify-center text-black font-bold text-xl">
+              O
+            </div>
+            <div>
+              <div class="font-bold">Admin Panel</div>
+              <div class="text-xs text-green-400">Connected to SQL</div>
+            </div>
+          </div>
+          
+          <nav class="space-y-2">
+            <button (click)="activeTab = 'dashboard'" 
+                    class="w-full text-left px-4 py-3 rounded transition-colors flex items-center gap-3"
+                    [class]="activeTab === 'dashboard' ? 'bg-osama-green/20 text-osama-green border-r-2 border-osama-green' : 'hover:bg-white/5 text-gray-400'">
+              <i class="fas fa-chart-line w-5"></i> Dashboard
+            </button>
+            <button (click)="resetAndOpenAdd()" 
+                    class="w-full text-left px-4 py-3 rounded transition-colors flex items-center gap-3"
+                    [class]="activeTab === 'add' ? 'bg-osama-green/20 text-osama-green border-r-2 border-osama-green' : 'hover:bg-white/5 text-gray-400'">
+              <i class="fas fa-plus-circle w-5"></i> Add Download
+            </button>
+            <button (click)="activeTab = 'manage'" 
+                    class="w-full text-left px-4 py-3 rounded transition-colors flex items-center gap-3"
+                    [class]="activeTab === 'manage' ? 'bg-osama-green/20 text-osama-green border-r-2 border-osama-green' : 'hover:bg-white/5 text-gray-400'">
+              <i class="fas fa-list w-5"></i> Manage Items
+            </button>
+            <button (click)="activeTab = 'settings'" 
+                    class="w-full text-left px-4 py-3 rounded transition-colors flex items-center gap-3"
+                    [class]="activeTab === 'settings' ? 'bg-osama-green/20 text-osama-green border-r-2 border-osama-green' : 'hover:bg-white/5 text-gray-400'">
+              <i class="fas fa-cogs w-5"></i> Server Settings
+            </button>
+            <button (click)="auth.logout()" class="w-full text-left px-4 py-3 rounded hover:bg-red-500/20 text-red-400 flex items-center gap-3 mt-8">
+              <i class="fas fa-sign-out-alt w-5"></i> Logout
+            </button>
+          </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1">
+          
+          @if (activeTab === 'dashboard') {
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div class="glass-panel p-6 rounded-xl border-t-2 border-blue-500">
+                <div class="text-gray-400 text-sm mb-1">Total Visitors</div>
+                <div class="text-3xl font-bold text-white">{{ db.stats().visitors | number }}</div>
+                <div class="text-green-500 text-xs mt-2"><i class="fas fa-arrow-up"></i> Live Tracking</div>
+              </div>
+              <div class="glass-panel p-6 rounded-xl border-t-2 border-osama-green">
+                <div class="text-gray-400 text-sm mb-1">Total Downloads</div>
+                <div class="text-3xl font-bold text-white">{{ db.stats().totalDownloads | number }}</div>
+                <div class="text-green-500 text-xs mt-2"><i class="fas fa-arrow-up"></i> Global Data</div>
+              </div>
+              <div class="glass-panel p-6 rounded-xl border-t-2 border-purple-500">
+                <div class="text-gray-400 text-sm mb-1">Items in DB</div>
+                <div class="text-3xl font-bold text-white">{{ db.items().length }}</div>
+                <div class="text-gray-500 text-xs mt-2">Active Records</div>
+              </div>
+            </div>
+
+            <div class="glass-panel rounded-xl p-6 mb-6">
+              <h3 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Admin Actions</h3>
+              <button (click)="resetWebsiteStatus()" class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500 px-4 py-2 rounded transition-all text-sm">
+                <i class="fas fa-database mr-2"></i> TRUNCATE Website Status (Reset)
+              </button>
+            </div>
+          }
+
+          @if (activeTab === 'add') {
+            <div class="glass-panel p-6 rounded-xl">
+              <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">{{ editingId ? 'Edit Download' : 'Add New Download' }}</h2>
+                @if (editingId) {
+                  <button (click)="cancelEdit()" class="text-sm text-red-400 hover:text-white border border-red-500/50 px-3 py-1 rounded">Cancel Edit</button>
+                }
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Form -->
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm text-gray-400 mb-1">Name</label>
+                    <input [(ngModel)]="newItem.name" type="text" class="w-full bg-black/50 border border-white/20 rounded p-2 text-white">
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm text-gray-400 mb-1">Type</label>
+                    <select [(ngModel)]="newItem.type" class="w-full bg-black/50 border border-white/20 rounded p-2 text-white">
+                      <option value="App">Application</option>
+                      <option value="Game">Game</option>
+                      <option value="Driver">Driver</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm text-gray-400 mb-1">Icon URL</label>
+                    <input [(ngModel)]="newItem.icon" type="text" placeholder="https://..." class="w-full bg-black/50 border border-white/20 rounded p-2 text-white">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm text-gray-400 mb-1">Download Path (Server)</label>
+                    <input [(ngModel)]="newItem.url" type="text" placeholder="/material/downloadables/filename.zip" class="w-full bg-black/50 border border-white/20 rounded p-2 text-white">
+                    <div class="text-xs text-gray-500 mt-1">If empty, defaults to /material/downloadables/[name].zip</div>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm text-gray-400 mb-1">Release Date</label>
+                    <input [(ngModel)]="newItem.releaseDate" type="date" class="w-full bg-black/50 border border-white/20 rounded p-2 text-white">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm text-gray-400 mb-1">Description</label>
+                    <textarea [(ngModel)]="newItem.description" rows="4" class="w-full bg-black/50 border border-white/20 rounded p-2 text-white"></textarea>
+                  </div>
+
+                  <button (click)="submitNewItem()" class="bg-osama-green hover:bg-green-400 text-black font-bold px-6 py-2 rounded shadow-lg transition-all">
+                    {{ editingId ? 'UPDATE SQL RECORD' : 'INSERT INTO SQL' }}
+                  </button>
+                </div>
+
+                <!-- Preview -->
+                <div>
+                  <label class="block text-sm text-gray-400 mb-2">Live Preview</label>
+                  <div class="border border-dashed border-white/20 rounded-xl p-4 flex justify-center items-center bg-black/30 min-h-[300px]">
+                    @if (newItem.name) {
+                      <div class="w-full">
+                         <!-- Mimic Item Card Preview -->
+                         <div class="glass-panel p-4 rounded-xl border-l-4"
+                             [class.border-l-osama-green]="newItem.type === 'App'"
+                             [class.border-l-osama-blue]="newItem.type === 'Game'"
+                             [class.border-l-purple-500]="newItem.type === 'Driver'">
+                            <div class="flex items-center gap-4 mb-3">
+                              <div class="w-16 h-16 rounded-lg bg-black/50 overflow-hidden">
+                                @if (newItem.icon) { <img [src]="newItem.icon" class="w-full h-full object-cover"> }
+                              </div>
+                              <div>
+                                <h3 class="font-bold text-lg text-white">{{ newItem.name }}</h3>
+                                <div class="text-yellow-400 text-xs"><i class="fas fa-star"></i> New Arrival</div>
+                              </div>
+                            </div>
+                            <div class="text-sm text-gray-400 mb-2 line-clamp-2">
+                              {{ newItem.description || 'Description will appear here...' }}
+                            </div>
+                         </div>
+                      </div>
+                    } @else {
+                      <span class="text-gray-500">Fill details to see preview</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (activeTab === 'manage') {
+            <div class="glass-panel p-6 rounded-xl">
+              <h2 class="text-2xl font-bold mb-6">Manage Downloads (SQL)</h2>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="text-gray-400 border-b border-white/10 text-sm">
+                       <th class="p-3 w-1/2">Item Details</th>
+                       <th class="p-3">Type</th>
+                       <th class="p-3">Stats</th>
+                       <th class="p-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of db.items(); track item.id) {
+                      <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="p-3">
+                          <div class="flex items-start gap-3">
+                            <img [src]="item.icon" class="w-10 h-10 rounded bg-black/50 object-cover mt-1">
+                            <div>
+                                <div class="font-bold text-white">{{ item.name }}</div>
+                                <div class="text-xs text-gray-500 line-clamp-1 max-w-[200px]">{{ item.description }}</div>
+                                <div class="text-xs text-gray-600 font-mono mt-1">{{ item.url }}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="p-3 align-top pt-4">
+                          <span class="text-xs px-2 py-1 rounded bg-white/10" 
+                                [class.text-osama-green]="item.type === 'App'"
+                                [class.text-osama-blue]="item.type === 'Game'"
+                                [class.text-purple-400]="item.type === 'Driver'">
+                            {{ item.type }}
+                          </span>
+                        </td>
+                        <td class="p-3 text-sm text-gray-400 align-top pt-4">
+                            <div><i class="fas fa-download w-4"></i> {{ item.downloads | number }}</div>
+                            <div><i class="fas fa-star w-4"></i> {{ item.rating | number:'1.1-1' }}</div>
+                        </td>
+                        <td class="p-3 text-right align-top pt-4">
+                          <div class="flex justify-end gap-2">
+                            <button (click)="resetItemStats(item.id, $event)" class="text-yellow-500 hover:text-yellow-400 bg-yellow-500/10 hover:bg-yellow-500/20 p-2 rounded transition-all" title="Reset Stats">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button (click)="startEdit(item)" class="text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 p-2 rounded transition-all" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button (click)="deleteItem(item.id, $event)" class="text-red-500 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 p-2 rounded transition-all" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+                @if (db.items().length === 0) {
+                  <div class="text-center py-8 text-gray-500">No items found in database.</div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (activeTab === 'settings') {
+             <div class="glass-panel p-6 rounded-xl">
+               <h2 class="text-2xl font-bold mb-6">Server Settings</h2>
+               
+               <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                   <div class="space-y-6">
+                     <h3 class="text-lg font-bold text-gray-300 border-b border-white/10 pb-2">Config Table</h3>
+                     <div>
+                       <label class="block text-sm text-gray-400 mb-1">Admin Password (Global)</label>
+                       <input [(ngModel)]="serverAdminPass" type="text" class="w-full bg-black/50 border border-white/20 rounded p-2 text-white">
+                       <p class="text-xs text-red-400 mt-1">Changing this updates the server immediately.</p>
+                     </div>
+                     <div>
+                       <label class="block text-sm text-gray-400 mb-1">Site Title</label>
+                       <input [(ngModel)]="serverSiteTitle" type="text" class="w-full bg-black/50 border border-white/20 rounded p-2 text-white">
+                     </div>
+                     <button (click)="saveGeneralSettings()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded w-full">
+                       Save General Settings
+                     </button>
+                   </div>
+
+                   <div class="space-y-6">
+                        <h3 class="text-lg font-bold text-gray-300 border-b border-white/10 pb-2">Edit About Page</h3>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">HTML Content</label>
+                            <textarea [(ngModel)]="aboutEditText" rows="10" class="w-full bg-black/50 border border-white/20 rounded p-2 text-white font-mono text-sm"></textarea>
+                            <p class="text-xs text-gray-500 mt-1">Supports HTML tags.</p>
+                        </div>
+                        <button (click)="saveAboutPage()" class="bg-osama-green hover:bg-green-400 text-black font-bold px-4 py-2 rounded w-full">
+                           Update About Page
+                        </button>
+                   </div>
+               </div>
+             </div>
+          }
+
+        </div>
+      </div>
+    </div>
+  }
+</div>
