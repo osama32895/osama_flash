@@ -179,7 +179,67 @@ try {
             saveDB('config', $config);
             echo json_encode(['success' => true]);
             break;
+		case 'rate_item':
+			$items = getDB('items');
 
+			$id = $input['id'] ?? null;
+			$val = $input['val'] ?? null;
+			$userId = $input['userId'] ?? null;
+		
+			if ($id === null || $val === null || !$userId) {
+				http_response_code(400);
+				echo json_encode(['success' => false, 'error' => 'Missing id/val/userId']);
+				break;
+			}
+
+			$val = (int)$val;
+			if ($val < 1 || $val > 5) {
+				http_response_code(400);
+				echo json_encode(['success' => false, 'error' => 'Rating must be 1..5']);
+				break;
+			}
+
+			$updated = false;
+
+			foreach ($items as &$item) {
+				if ((int)$item['id'] === (int)$id) {
+					// initialize if missing
+					if (!isset($item['ratedBy']) || !is_array($item['ratedBy'])) {
+						$item['ratedBy'] = [];
+					}
+					if (!isset($item['ratingCount'])) $item['ratingCount'] = 0;
+					if (!isset($item['rating'])) $item['rating'] = 0;
+
+					// block double rating
+					if (in_array($userId, $item['ratedBy'], true)) {
+						echo json_encode(['success' => false, 'alreadyRated' => true]);
+						$updated = true; // handled
+						break;
+					}
+
+					// update average rating
+					$oldCount = (int)$item['ratingCount'];
+					$oldAvg = (float)$item['rating'];
+					$newCount = $oldCount + 1;
+					$newAvg = (($oldAvg * $oldCount) + $val) / $newCount;
+
+					$item['ratingCount'] = $newCount;
+					$item['rating'] = round($newAvg, 2);
+					$item['ratedBy'][] = $userId;
+	
+					$updated = true;
+					echo json_encode(['success' => true, 'rating' => $item['rating'], 'ratingCount' => $item['ratingCount']]);
+					break;
+				}
+			}
+
+			if ($updated) {
+				saveDB('items', $items);
+			} else {
+				http_response_code(404);
+				echo json_encode(['success' => false, 'error' => 'Item not found']);
+			}
+			break;
         default:
             echo json_encode(['error' => 'Invalid Action']);
     }
@@ -187,4 +247,5 @@ try {
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()]);
 }
+
 ?>

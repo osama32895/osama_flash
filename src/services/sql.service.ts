@@ -116,7 +116,9 @@ export class SqlService {
       catchError(() => of(false))
     );
   }
-
+  rateItem(id: number, val: number, userId: string) {
+    return this.http.post(`${this.API_URL}?action=rate_item`, { id, val, userId });
+  }
   updateConfig(config: Partial<ServerConfig> | { aboutContent: string }): Observable<any> {
     return this.http.post(`${this.API_URL}?action=update_config`, config);
   }

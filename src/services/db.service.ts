@@ -79,10 +79,27 @@ export class DbService {
   }
 
   rateItem(id: number, rating: number) {
-    // Rating implementation would need a separate API endpoint, omitted for brevity but follows pattern
-    console.log('Rating not fully implemented in API yet');
-  }
+    // one-id-per-browser
+    const key = 'osama_user_id';
+    let userId = localStorage.getItem(key);
+    if (!userId) {
+      // simple unique id
+      userId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+      localStorage.setItem(key, userId);
+    }
 
+    this.sql.rateItem(id, rating, userId).subscribe((res: any) => {
+      if (res?.alreadyRated) {
+        alert('You already rated this item.');
+        return;
+      }
+      if (res?.success) {
+        this.refreshData();
+      } else {
+        alert('Rating failed.');
+      }
+    });
+  }
   deleteItem(id: number) {
     this.sql.deleteItem(id).subscribe(() => this.refreshData());
   }
