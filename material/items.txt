@@ -1,15 +1,15 @@
 [
     {
-        "id": 1768687412,
-        "name": "test",
+        "id": 1768737085,
+        "name": "testtt2",
         "type": "App",
-        "icon": "gg",
+        "icon": "hgfd",
         "rating": 0,
         "ratingCount": 0,
-        "downloads": 10,
-        "releaseDate": "2026-01-17",
+        "downloads": 1,
+        "releaseDate": "2026-01-18",
         "description": "",
-        "url": "https:\/\/kernelos.org\/games\/",
+        "url": "\/material\/downloadables\/testtt.zip",
         "likes": 0,
         "dislikes": 0
     }
