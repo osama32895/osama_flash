@@ -23,3 +23,6 @@
   Header set Pragma "no-cache"
   Header set Expires "0"
 </FilesMatch>
+<FilesMatch "\.(zip|rar|7z|apk|exe|msi|pdf)$">
+  Header set Content-Disposition "attachment"
+</FilesMatch>
