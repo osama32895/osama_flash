@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DownloadItem, SiteStats } from './db.service';
-import { Observable, forkJoin, of, throwError } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 interface ServerConfig {
@@ -28,10 +28,10 @@ interface GetAllResponse {
 })
 export class SqlService {
   private http: HttpClient = inject(HttpClient);
-  
+
   // URL to the PHP backend script
-  private readonly API_URL = '/api/api.php'; 
-  
+  private readonly API_URL = '/api/api.php';
+
   // Direct paths to the Flat Files (Read-Only access for Frontend)
   private readonly FILE_PATHS = {
     items: '/material/items.txt',
@@ -39,34 +39,32 @@ export class SqlService {
     config: '/material/config.txt'
   };
 
-  constructor() {}
+  private bust(url: string) {
+    return `${url}?v=${Date.now()}`;
+  }
 
   // --- Core Data Fetching ---
-
   getAllData(): Observable<ServerSchema> {
-    // Strategy:
-    // 1. Try to read the Flat Files directly. This proves data is server-side.
-    // 2. If files are missing (404), call PHP API to seed/create them.
-    
+    // 1) Try reading flat files directly (fast)
+    // 2) If any missing/corrupt => fallback to API
+
     return forkJoin({
-      items: this.http.get<DownloadItem[]>(this.FILE_PATHS.items).pipe(catchError(() => of(null))),
-      stats: this.http.get<SiteStats>(this.FILE_PATHS.stats).pipe(catchError(() => of(null))),
-      config: this.http.get<ServerConfig>(this.FILE_PATHS.config).pipe(catchError(() => of(null)))
+      items: this.http.get<DownloadItem[]>(this.bust(this.FILE_PATHS.items)).pipe(catchError(() => of(null))),
+      stats: this.http.get<SiteStats>(this.bust(this.FILE_PATHS.stats)).pipe(catchError(() => of(null))),
+      config: this.http.get<ServerConfig>(this.bust(this.FILE_PATHS.config)).pipe(catchError(() => of(null)))
     }).pipe(
       switchMap(results => {
-        // If any file is missing, we need to initialize via PHP
         if (!results.items || !results.stats || !results.config) {
-          console.log('Flat files missing, calling Server API to seed defaults...');
           return this.fetchFromApi();
         }
 
-        // Return data read directly from text files
         return of({
           items: results.items,
           stats: results.stats,
           config: {
             adminPass: results.config.adminPass,
-            siteTitle: results.config.siteTitle
+            siteTitle: results.config.siteTitle,
+            aboutContent: results.config.aboutContent
           },
           aboutContent: results.config.aboutContent || ''
         } as ServerSchema);
@@ -81,28 +79,15 @@ export class SqlService {
         stats: response.stats || { visitors: 0, totalDownloads: 0 },
         config: {
           adminPass: response.config?.adminPass || '',
-          siteTitle: response.config?.siteTitle || 'Osama Flash'
+          siteTitle: response.config?.siteTitle || 'Osama Flash',
+          aboutContent: response.config?.aboutContent || ''
         },
         aboutContent: response.config?.aboutContent || ''
       }))
     );
   }
 
-  private bust(url: string) {
-    return `${url}?v=${Date.now()}`;
-  }
-  
-  getAllData(): Observable<ServerSchema> {
-    return forkJoin({
-      items: this.http.get<DownloadItem[]>(this.bust(this.FILE_PATHS.items)).pipe(catchError(() => of(null))),
-      stats: this.http.get<SiteStats>(this.bust(this.FILE_PATHS.stats)).pipe(catchError(() => of(null))),
-      config: this.http.get<ServerConfig>(this.bust(this.FILE_PATHS.config)).pipe(catchError(() => of(null)))
-    }).pipe(
-      // ...rest stays the same
-    );
-  }
   // --- Action Methods (Write to Server) ---
-
   insertItem(item: DownloadItem): Observable<any> {
     return this.http.post(`${this.API_URL}?action=add_item`, item);
   }
@@ -112,7 +97,7 @@ export class SqlService {
   }
 
   deleteItem(id: number): Observable<any> {
-     return this.http.post(`${this.API_URL}?action=delete_item`, { id });
+    return this.http.post(`${this.API_URL}?action=delete_item`, { id });
   }
 
   incrementDownload(id: number): Observable<any> {
@@ -124,14 +109,16 @@ export class SqlService {
   }
 
   verifyAdmin(password: string): Observable<boolean> {
-    return this.http.post<{success: boolean}>(`${this.API_URL}?action=login`, { password }).pipe(
+    return this.http.post<{ success: boolean }>(`${this.API_URL}?action=login`, { password }).pipe(
       map((res: any) => res.success),
       catchError(() => of(false))
     );
   }
+
   rateItem(id: number, val: number, userId: string) {
     return this.http.post(`${this.API_URL}?action=rate_item`, { id, val, userId });
   }
+
   updateConfig(config: Partial<ServerConfig> | { aboutContent: string }): Observable<any> {
     return this.http.post(`${this.API_URL}?action=update_config`, config);
   }
