@@ -88,15 +88,15 @@ export class SqlService {
     );
   }
 
-  private withBust(url: string) {
+  private bust(url: string) {
     return `${url}?v=${Date.now()}`;
   }
   
   getAllData(): Observable<ServerSchema> {
     return forkJoin({
-      items: this.http.get<DownloadItem[]>(this.withBust(this.FILE_PATHS.items)).pipe(catchError(() => of(null))),
-      stats: this.http.get<SiteStats>(this.withBust(this.FILE_PATHS.stats)).pipe(catchError(() => of(null))),
-      config: this.http.get<ServerConfig>(this.withBust(this.FILE_PATHS.config)).pipe(catchError(() => of(null)))
+      items: this.http.get<DownloadItem[]>(this.bust(this.FILE_PATHS.items)).pipe(catchError(() => of(null))),
+      stats: this.http.get<SiteStats>(this.bust(this.FILE_PATHS.stats)).pipe(catchError(() => of(null))),
+      config: this.http.get<ServerConfig>(this.bust(this.FILE_PATHS.config)).pipe(catchError(() => of(null)))
     }).pipe(
       // ...rest stays the same
     );
