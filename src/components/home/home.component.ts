@@ -65,30 +65,17 @@ export class HomeComponent {
 
   handleDownload(id: number) {
     const item = this.db.items().find(i => i.id === id);
-    if (item && item.url) {
-      console.log('Initiating download for:', item.url);
-      
-      const link = document.createElement('a');
-      link.href = item.url;
-      link.setAttribute('download', item.name);
-      
-      // Ensure absolute path if it doesn't start with http/https
-      if (!item.url.startsWith('http') && !item.url.startsWith('/')) {
-         link.href = '/' + item.url;
-      }
+    if (!item?.url) return;
 
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      
-      setTimeout(() => {
-        document.body.removeChild(link);
-      }, 100);
+    // Make URL absolute if it's a relative path
+    const url = item.url.startsWith('http')
+      ? item.url
+      : new URL(item.url, window.location.origin).toString();
 
-      this.db.incrementDownload(id);
-    } else {
-      console.error('Download item not found or URL missing');
-    }
+    // open file (browser will download if headers are correct)
+    window.open(url, '_blank');
+
+    this.db.incrementDownload(id);
   }
 
   handleRate(evt: {id: number, val: number}) {
