@@ -37,6 +37,9 @@ import { CommonModule } from '@angular/common';
             <span class="text-gray-500 ml-1 text-xs">({{ item().ratingCount }})</span>
           </div>
         </div>
+		<div class="mt-1 text-xs text-gray-400 line-clamp-2 opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-16 transition-all duration-200">
+			{{ item().description }}
+		</div>
       </div>
 
       <!-- Stats -->
