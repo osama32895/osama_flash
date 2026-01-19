@@ -63,20 +63,27 @@ export class HomeComponent {
     this.viewMode.update(m => m === 'grid' ? 'list' : 'grid');
   }
 
-handleDownload(id: number) {
-  const item = this.db.items().find(i => i.id === id);
-  if (!item?.url) return;
+  handleDownload(id: number) {
+    const item = this.db.items().find(i => i.id === id);
+    if (!item?.url) return;
 
-  const url = item.url.startsWith('http')
-    ? item.url
-    : new URL(item.url, window.location.origin).toString();
+    const absoluteUrl = item.url.startsWith('http')
+      ? item.url
+      : new URL(item.url, window.location.origin).toString();
 
-  // Force a real navigation to the file URL (browser keeps filename)
-  window.location.href = url;
+    // Extract real filename from URL: Clipboard_tool.exe
+    const filename = decodeURIComponent(new URL(absoluteUrl).pathname.split('/').pop() || 'download');
 
-  // (optional) increment after a short delay
-  setTimeout(() => this.db.incrementDownload(id), 500);
-}
+    const a = document.createElement('a');
+    a.href = absoluteUrl;
+    a.download = filename;     // IMPORTANT: keep original filename + extension
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    this.db.incrementDownload(id);
+  }
 
   handleRate(evt: {id: number, val: number}) {
     this.db.rateItem(evt.id, evt.val);

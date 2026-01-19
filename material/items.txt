@@ -34,7 +34,7 @@
         "icon": "material\/icons\/Untitled-1.ico",
         "rating": 0,
         "ratingCount": 0,
-        "downloads": 25,
+        "downloads": 26,
         "releaseDate": "2020-01-01",
         "description": "clipboard tool for dev's and multi copy pasting.",
         "url": "material\/apps\/Clipboard_tool.exe",
