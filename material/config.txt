@@ -1,5 +1,5 @@
 {
-    "adminPass": "12345",
+    "adminPass": "2006",
     "siteTitle": "Osama Flash2",
-    "aboutContent": "<h1 class=\"text-3xl font-bold text-white mb-2\">About Osama Naser<\/h1><p class=\"text-gray-300\">Welcome to the official file repository.<\/p>"
+    "aboutContent": "<h1 class=\"text-3xl font-bold text-white mb-2\">About Osama Naser<\/h1><p class=\"text-gray-300\">Welcome to the official Osama website.<\/p>"
 }
