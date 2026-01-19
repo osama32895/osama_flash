@@ -63,20 +63,20 @@ export class HomeComponent {
     this.viewMode.update(m => m === 'grid' ? 'list' : 'grid');
   }
 
-  handleDownload(id: number) {
-    const item = this.db.items().find(i => i.id === id);
-    if (!item?.url) return;
+handleDownload(id: number) {
+  const item = this.db.items().find(i => i.id === id);
+  if (!item?.url) return;
 
-    // Make URL absolute if it's a relative path
-    const url = item.url.startsWith('http')
-      ? item.url
-      : new URL(item.url, window.location.origin).toString();
+  const url = item.url.startsWith('http')
+    ? item.url
+    : new URL(item.url, window.location.origin).toString();
 
-    // open file (browser will download if headers are correct)
-    window.open(url, '_blank');
+  // Force a real navigation to the file URL (browser keeps filename)
+  window.location.href = url;
 
-    this.db.incrementDownload(id);
-  }
+  // (optional) increment after a short delay
+  setTimeout(() => this.db.incrementDownload(id), 500);
+}
 
   handleRate(evt: {id: number, val: number}) {
     this.db.rateItem(evt.id, evt.val);
