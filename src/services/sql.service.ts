@@ -88,6 +88,19 @@ export class SqlService {
     );
   }
 
+  private withBust(url: string) {
+    return `${url}?v=${Date.now()}`;
+  }
+  
+  getAllData(): Observable<ServerSchema> {
+    return forkJoin({
+      items: this.http.get<DownloadItem[]>(this.withBust(this.FILE_PATHS.items)).pipe(catchError(() => of(null))),
+      stats: this.http.get<SiteStats>(this.withBust(this.FILE_PATHS.stats)).pipe(catchError(() => of(null))),
+      config: this.http.get<ServerConfig>(this.withBust(this.FILE_PATHS.config)).pipe(catchError(() => of(null)))
+    }).pipe(
+      // ...rest stays the same
+    );
+  }
   // --- Action Methods (Write to Server) ---
 
   insertItem(item: DownloadItem): Observable<any> {
