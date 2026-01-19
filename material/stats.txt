@@ -1,4 +1,4 @@
 {
-    "visitors": 1900,
-    "totalDownloads": 42
+    "visitors": 367,
+    "totalDownloads": 1
 }
